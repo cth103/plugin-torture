@@ -40,9 +40,6 @@ main (int argc, char* argv[])
 		_mm_setcsr (mxcsr);
 	}
 
-	float y = 1e-56;
-	printf ("%e\n", y);
-
 	Plugin* p = new LadspaPlugin (plugin, 0);
 
 	p->instantiate (44100);
