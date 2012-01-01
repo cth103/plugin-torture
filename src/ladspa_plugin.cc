@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <cassert>
 #include "ladspa_plugin.h"
 
 using namespace std;
@@ -30,6 +31,21 @@ LadspaPlugin::LadspaPlugin (string const & filename, int index)
 
 	_descriptor = fn (index);
 	_num_ports = _descriptor->PortCount;
+
+	for (int i = 0; i < _num_ports; ++i) {
+		LADSPA_PortDescriptor p = _descriptor->PortDescriptors[i];
+		if (LADSPA_IS_PORT_CONTROL (p)) {
+			if (LADSPA_IS_PORT_INPUT (p)) {
+				_control_inputs.push_back (i);
+			}
+		} else if (LADSPA_IS_PORT_AUDIO (p)) {
+			if (LADSPA_IS_PORT_INPUT (p)) {
+				_audio_inputs.push_back (i);
+			} else if (LADSPA_IS_PORT_OUTPUT (p)) {
+				_audio_outputs.push_back (i);
+			}
+		}
+	}
 }
 
 LadspaPlugin::~LadspaPlugin ()
@@ -139,35 +155,47 @@ LadspaPlugin::run (int N)
 }
 
 int
-LadspaPlugin::input_buffers () const
+LadspaPlugin::audio_inputs () const
 {
-	int n = 0;
-	
-	for (int port = 0; port < _num_ports; ++port) {
-		if (LADSPA_IS_PORT_AUDIO (_descriptor->PortDescriptors[port])) {
-			if (LADSPA_IS_PORT_INPUT (_descriptor->PortDescriptors[port])) {
-				++n;
-			}
-		}
-	}
-	
-	return n;
+	return _audio_inputs.size ();
 }
-	
+
+int
+LadspaPlugin::audio_outputs () const
+{
+	return _audio_outputs.size ();
+}
 
 float *
 LadspaPlugin::input_buffer (int n) const
 {
-	for (int port = 0; port < _num_ports; ++port) {
-		if (LADSPA_IS_PORT_AUDIO (_descriptor->PortDescriptors[port])) {
-			if (LADSPA_IS_PORT_INPUT (_descriptor->PortDescriptors[port])) {
-				if (n == 0) {
-					return _buffers[port];
-				}
-				--n;
-			}
-		}
-	}
-	
-	return 0;
+	assert (n < audio_inputs ());
+	return _buffers[_audio_inputs[n]];
+}
+
+float *
+LadspaPlugin::output_buffer (int n) const
+{
+	assert (n < audio_outputs ());
+	return _buffers[_audio_outputs[n]];
+}
+
+int
+LadspaPlugin::control_inputs () const
+{
+	return _control_inputs.size ();
+}
+
+string
+LadspaPlugin::control_input_name (int n) const
+{
+	assert (n < control_inputs ());
+	return _descriptor->PortNames[_control_inputs[n]];
+}
+
+void
+LadspaPlugin::set_control_input (int n, float v)
+{
+	assert (n < control_inputs ());
+	_controls[_control_inputs[n]] = v;
 }

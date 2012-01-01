@@ -10,10 +10,18 @@ buffer_silent (float* b, int N)
 }
 
 void
-buffer_close_to_denormal (float* b, int N)
+buffer_flt_min (float* b, int N)
 {
 	for (int i = 0; i < N; ++i) {
 		b[i] = FLT_MIN;
+	}
+}
+
+void
+buffer_denormal (float* b, int N)
+{
+	for (int i = 0; i < N; ++i) {
+		b[i] = 1e-38;
 	}
 }
 

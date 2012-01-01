@@ -8,3 +8,9 @@ log (string const & s)
 {
 	cout << "LOG: " << s << "\n";
 }
+
+void
+warning (string const & s)
+{
+	cout << "WARNING: " << s << "\n";
+}

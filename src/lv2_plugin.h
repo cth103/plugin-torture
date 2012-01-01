@@ -1,13 +1,12 @@
-#include <string>
 #include <vector>
-#include <ladspa.h>
+#include <lilv/lilv.h>
 #include "plugin.h"
 
-class LadspaPlugin : public Plugin
+class LV2Plugin : public Plugin
 {
 public:
-	LadspaPlugin (std::string const &, int);
-	~LadspaPlugin ();
+	LV2Plugin (std::string const &);
+	~LV2Plugin ();
 
 	void instantiate (int);
 	void activate ();
@@ -24,14 +23,13 @@ public:
 	void set_control_input (int, float);
 	
 private:
-	void unprepare ();
-
-	void* _library;
-	const LADSPA_Descriptor * _descriptor;
+	LilvInstance* _instance;
+	LV2_Feature** _features;
+	LilvPlugin const * _plugin;
 	int _num_ports;
-	LADSPA_Handle _handle;
-	LADSPA_Data* _controls;
-	LADSPA_Data** _buffers;
+	float* _controls;
+	float* _defaults;
+	float** _buffers;
 
 	std::vector<int> _audio_inputs;
 	std::vector<int> _audio_outputs;
