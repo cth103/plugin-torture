@@ -5,6 +5,7 @@
 #include <xmmintrin.h>
 #include "ladspa_plugin.h"
 #include "log.h"
+#include "input_buffers.h"
 
 using namespace std;
 
@@ -42,19 +43,34 @@ main (int argc, char* argv[])
 
 	Plugin* p = new LadspaPlugin (plugin, 0);
 
+	int N = 1024;
+
 	p->instantiate (44100);
 	p->activate ();
-	p->prepare (1024);
+	p->prepare (N);
 
-	int const N = p->input_buffers ();
-	for (int i = 0; i < N; ++i) {
-		float* b = p->input_buffer (i);
-		for (int j = 0; j < 1024; ++j) {
-			b[j] = 1e-25;
-		}
-	}
+	int const bufs = p->input_buffers ();
 	
-	p->run (1024);
+	for (int i = 0; i < bufs; ++i) {
+		buffer_silent (p->input_buffer(i), N);
+	}
+	p->run (N);
+
+	for (int i = 0; i < bufs; ++i) {
+		buffer_step_up (p->input_buffer(i), N);
+	}
+	p->run (N);
+
+	for (int i = 0; i < bufs; ++i) {
+		buffer_step_down (p->input_buffer(i), N);
+	}
+	p->run (N);
+	
+	for (int i = 0; i < bufs; ++i) {
+		buffer_close_to_denormal (p->input_buffer(i), N);
+	}
+	p->run (N);
+	
 	p->deactivate ();
 
 	return 0;
