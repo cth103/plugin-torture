@@ -8,6 +8,7 @@ These are:
 -- impulse: a 1024-sample buffer with its initial sample as 1 and the
    rest at 0, followed by 256 1024-sample buffers of 0.
 
+OK, so hardly torture at the moment.
 
 ---- Denormals
 
@@ -30,8 +31,8 @@ with SSE support (pass -msse and -mfpmath=sse to GCC).
 -l|--lv2: the plugin is a LV2
 
 -p <plugin>: specify the plugin.  This should be a .so file for LADSPA
-             or a .ttl file for LV2.  For LV2s the plugin must be on the LV2 search
-	     path.
+             or a .ttl file for LV2.  For LV2s the plugin must be on
+             the LV2 search path.
 
 
 
@@ -40,6 +41,7 @@ with SSE support (pass -msse and -mfpmath=sse to GCC).
 Contact cth@carlh.net.
 
 
+---- Bugs
 
-
-
+Yes.  The Makefile has no dependency information, so be careful if you
+modify a header and rebuild (doing a make clean is probably a good idea).
