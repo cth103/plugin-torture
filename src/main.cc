@@ -6,6 +6,7 @@
 #include <getopt.h>
 #include <sstream>
 #include <list>
+#include <signal.h>
 #include "ladspa_plugin.h"
 #include "lv2_plugin.h"
 #include "log.h"
@@ -14,9 +15,18 @@
 
 using namespace std;
 
+void
+fp_exception_handler (int)
+{
+	warning ("FP exception");
+	abort ();
+}
+
 int
 main (int argc, char* argv[])
 {
+	signal (SIGFPE, fp_exception_handler);
+	
 	list<Test*> tests;
 	tests.push_back (new ImpulseAndWait);
 
