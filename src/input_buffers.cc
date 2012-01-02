@@ -10,6 +10,16 @@ buffer_silent (float* b, int N)
 }
 
 void
+buffer_impulse (float* b, int N)
+{
+	b[0] = 1;
+	
+	for (int i = 1; i < N; ++i) {
+		b[i] = 0;
+	}
+}
+
+void
 buffer_flt_min (float* b, int N)
 {
 	for (int i = 0; i < N; ++i) {

@@ -5,24 +5,21 @@
 #include <xmmintrin.h>
 #include <getopt.h>
 #include <sstream>
+#include <list>
 #include "ladspa_plugin.h"
 #include "lv2_plugin.h"
 #include "log.h"
 #include "input_buffers.h"
+#include "tests.h"
 
 using namespace std;
-
-static void
-check_for_output_denormals (Plugin* p, int buffer_size)
-{
-	if (p->output_has_denormals (buffer_size)) {
-		warning ("Output buffer contains denormals");
-	}
-}
 
 int
 main (int argc, char* argv[])
 {
+	list<Test*> tests;
+	tests.push_back (new ImpulseAndWait);
+
 	string plugin;
 	bool detect_denormals = false;
 
@@ -79,7 +76,9 @@ main (int argc, char* argv[])
 		_mm_setcsr (mxcsr);
 	}
 
+
 	Plugin* p = 0;
+	
 	switch (type) {
 	case LADSPA:
 		p = new LadspaPlugin (plugin, 0);
@@ -103,41 +102,13 @@ main (int argc, char* argv[])
 		log (s.str ());
 	}
 
-	int const bufs = p->audio_inputs ();
-
-	for (int i = 0; i < bufs; ++i) {
-		buffer_silent (p->input_buffer(i), N);
+	for (list<Test*>::iterator i = tests.begin(); i != tests.end(); ++i) {
+		log ((*i)->name ());
+		(*i)->run (p, N);
 	}
-	p->run (N);
-	check_for_output_denormals (p, N);
-
-	for (int i = 0; i < bufs; ++i) {
-		buffer_step_up (p->input_buffer(i), N);
-	}
-	p->run (N);
-	check_for_output_denormals (p, N);
-
-	for (int i = 0; i < bufs; ++i) {
-		buffer_step_down (p->input_buffer(i), N);
-	}
-	p->run (N);
-	check_for_output_denormals (p, N);
-	
-	for (int i = 0; i < bufs; ++i) {
-		buffer_flt_min (p->input_buffer(i), N);
-	}
-	p->run (N);
-	check_for_output_denormals (p, N);
-
-#if 0	
-	for (int i = 0; i < bufs; ++i) {
-		buffer_denormal (p->input_buffer(i), N);
-	}
-	p->run (N);
-	check_for_output_denormals (p, N);
-#endif	
 	
 	p->deactivate ();
+	delete p;
 
 	return 0;
 }

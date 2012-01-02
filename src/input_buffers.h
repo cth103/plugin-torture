@@ -1,4 +1,5 @@
 
+void buffer_impulse (float *, int);
 void buffer_silent (float *, int);
 void buffer_step_up (float *, int);
 void buffer_step_down (float *, int);
