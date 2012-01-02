@@ -22,6 +22,7 @@ public:
 	int control_inputs () const;
 	std::string control_input_name (int) const;
 	void set_control_input (int, float);
+	float get_control_input (int) const;
 	
 private:
 	void unprepare ();

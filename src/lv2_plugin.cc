@@ -200,3 +200,11 @@ LV2Plugin::set_control_input (int n, float v)
 	assert (n < control_inputs ());
 	_controls[_control_inputs[n]] = v;
 }
+
+float
+LV2Plugin::get_control_input (int n) const
+{
+	assert (n < control_inputs ());
+	return _controls[_control_inputs[n]];
+}
+

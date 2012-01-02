@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <xmmintrin.h>
 #include <getopt.h>
+#include <sstream>
 #include "ladspa_plugin.h"
 #include "lv2_plugin.h"
 #include "log.h"
@@ -95,15 +96,15 @@ main (int argc, char* argv[])
 	p->prepare (N);
 
 	int const control_inputs = p->control_inputs ();
-	cout << "Inputs:\n";
+	log ("Inputs:");
 	for (int i = 0; i < control_inputs; ++i) {
-		cout << "\t" << i << " " << p->control_input_name (i) << "\n";
+		stringstream s;
+		s << "\t" << i << " " << p->control_input_name (i) << " [default " << p->get_control_input (i) << "]";
+		log (s.str ());
 	}
 
 	int const bufs = p->audio_inputs ();
 
-	cout << bufs << " audio inputs.\n";
-	
 	for (int i = 0; i < bufs; ++i) {
 		buffer_silent (p->input_buffer(i), N);
 	}
