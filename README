@@ -45,3 +45,10 @@ Contact cth@carlh.net.
 
 Yes.  The Makefile has no dependency information, so be careful if you
 modify a header and rebuild (doing a make clean is probably a good idea).
+
+
+---- Acknowledgements
+
+Some of this code was inspired by / copied from Ardour and
+`demolition', a LADSPA torture tester
+(http://devel.tlrmx.org/audio/demolition/).  Thanks!
