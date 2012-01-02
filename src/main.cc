@@ -15,21 +15,31 @@
 
 using namespace std;
 
+static bool abort_on_sigfpe = false;
+
 void
 fp_exception_handler (int)
 {
 	warning ("FP exception");
-	abort ();
+	if (abort_on_sigfpe) {
+		abort ();
+	}
+
+	/* return code 2: SIGFPE was raised (probably due to a denormal) */
+	exit (2);
 }
 
 int
 main (int argc, char* argv[])
 {
 	signal (SIGFPE, fp_exception_handler);
-	
+
+	/* Make a list of tests */
 	list<Test*> tests;
 	tests.push_back (new ImpulseAndWait);
 
+	/* Parse the command line */
+	
 	string plugin;
 	bool detect_denormals = false;
 
@@ -41,7 +51,12 @@ main (int argc, char* argv[])
 	Type type = LADSPA;
 	
 	if (argc == 1) {
-		cerr << argv[0] << ": usage: " << argv[0] << " [-d] -p <plugin.so>\n";
+		cerr << argv[0] << ": usage: " << argv[0] << " [-d] [-a] [-s|--ladspa] [-l,--lv2] -p <plugin.{so,ttl}>\n"
+		     << "\t-d set CPU to raise SIGFPE on encountering a denormal, and catch it\n"
+		     << "\t-a abort on SIGFPE; otherwise return with exit code 2\n"
+		     << "\t-s|--ladspa plugin is LADSPA (specify the .so)\n"
+		     << "\t-l|--lv2 plugin is LV2 (specify the .ttl, must be on LV2_PATH)\n"
+		     << "\t-p <plugin.{so,ttl}> plugin to torture\n";
 		exit (EXIT_FAILURE);
 	}
 
@@ -49,6 +64,7 @@ main (int argc, char* argv[])
 		
 		static struct option long_options[] = {
 			{ "denormals", no_argument, 0, 'd' },
+			{ "abort", no_argument, 0, 'a' },
 			{ "ladspa", no_argument, 0, 's' },
 			{ "lv2", no_argument, 0, 'l' },
 			{ "plugin", required_argument, 0, 'p'},
@@ -64,6 +80,9 @@ main (int argc, char* argv[])
 		switch (c) {
 		case 'd':
 			detect_denormals = true;
+			break;
+		case 'a':
+			abort_on_sigfpe = true;
 			break;
 		case 's':
 			type = LADSPA;
