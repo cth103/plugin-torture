@@ -1,0 +1,45 @@
+---- plugin-torture
+
+This is a tool to test LADSPA and LV2 plugins.
+
+It loads a given plugin and subjects it to some test runs.
+These are:
+
+-- impulse: a 1024-sample buffer with its initial sample as 1 and the
+   rest at 0, followed by 256 1024-sample buffers of 0.
+
+
+---- Denormals
+
+One notable feature of plugin-torture is that it can ask the processor
+to raise an exception when a denormal is detected, and hence allow
+debugging of such issues.  For this to work, the plugin must be compiled
+with SSE support (pass -msse and -mfpmath=sse to GCC).
+
+
+---- Command-line options
+
+-d: set the CPU to raise SIGFPE on encountering a denormal.  This will
+    be caught and reported.
+
+-a: abort on SIGFPE; useful if you are gdb-ing a plugin and you want
+    to see where a denormal is being introduced.
+
+-s|--ladspa: the plugin is a LADSPA
+
+-l|--lv2: the plugin is a LV2
+
+-p <plugin>: specify the plugin.  This should be a .so file for LADSPA
+             or a .ttl file for LV2.  For LV2s the plugin must be on the LV2 search
+	     path.
+
+
+
+---- Contact
+
+Contact cth@carlh.net.
+
+
+
+
+
