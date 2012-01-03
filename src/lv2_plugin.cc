@@ -62,6 +62,7 @@ public:
 static LV2World world;
 
 LV2Plugin::LV2Plugin (string const & filename)
+	: _plugin (0)
 {
 	_features = (LV2_Feature**) malloc (sizeof (LV2_Feature*));
 	_features[0] = 0;
