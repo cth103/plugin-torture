@@ -28,17 +28,80 @@ public:
 
 	virtual std::string name () const = 0;
 	virtual void run (Plugin *, int) = 0;
+	virtual bool evil () const {
+		return false;
+	}
 
 protected:
 	void check_for_output_denormals (Plugin *, int);
+	void wait (Plugin *, int);
 };
 
-class ImpulseAndWait : public Test
+class Silence : public Test
 {
 public:
 	std::string name () const {
-		return "impulse-and-wait";
+		return "silence";
 	}
 	
 	void run (Plugin *, int);
 };
+
+class Impulse : public Test
+{
+public:
+	std::string name () const {
+		return "impulse";
+	}
+	
+	void run (Plugin *, int);
+};
+
+class Pulse : public Test
+{
+public:
+	std::string name () const {
+		return "pulse";
+	}
+	
+	void run (Plugin *, int);
+};
+
+class FltMin : public Test
+{
+public:
+	std::string name () const {
+		return "FLT_MIN";
+	}
+
+	void run (Plugin *, int);
+
+	bool evil () const {
+		return true;
+	}
+};
+
+class ArdourDCBias : public Test
+{
+public:
+	std::string name () const {
+		return "ardour-dc-bias";
+	}
+
+	void run (Plugin *, int);
+};
+
+class Denormals : public Test
+{
+public:
+	std::string name () const {
+		return "denormals";
+	}
+
+	void run (Plugin *, int);
+
+	bool evil () const {
+		return true;
+	}
+};
+	

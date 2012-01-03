@@ -55,11 +55,17 @@ main (int argc, char* argv[])
 
 	/* Make a list of tests */
 	list<Test*> tests;
-	tests.push_back (new ImpulseAndWait);
+	tests.push_back (new Silence);
+	tests.push_back (new Impulse);
+	tests.push_back (new Pulse);
+	tests.push_back (new ArdourDCBias);
+	tests.push_back (new FltMin);
+	tests.push_back (new Denormals);
 
 	/* Parse the command line */
 	
 	string plugin;
+	bool evil = false;
 	bool detect_denormals = false;
 
 	enum Type {
@@ -70,7 +76,8 @@ main (int argc, char* argv[])
 	Type type = LADSPA;
 	
 	if (argc == 1) {
-		cerr << argv[0] << ": usage: " << argv[0] << " [-d] [-a] [-s|--ladspa] [-l,--lv2] -p <plugin.{so,ttl}>\n"
+		cerr << argv[0] << ": usage: " << argv[0] << " [-e] [-d] [-a] [-s|--ladspa] [-l,--lv2] -p <plugin.{so,ttl}>\n"
+		     << "\t-e run particularly evil tests\n"
 		     << "\t-d set CPU to raise SIGFPE on encountering a denormal, and catch it\n"
 		     << "\t-a abort on SIGFPE; otherwise return with exit code 2\n"
 		     << "\t-s|--ladspa plugin is LADSPA (specify the .so)\n"
@@ -82,6 +89,7 @@ main (int argc, char* argv[])
 	while (1) {
 		
 		static struct option long_options[] = {
+			{ "evil", no_argument, 0, 'e' },
 			{ "denormals", no_argument, 0, 'd' },
 			{ "abort", no_argument, 0, 'a' },
 			{ "ladspa", no_argument, 0, 's' },
@@ -97,6 +105,9 @@ main (int argc, char* argv[])
 		}
 
 		switch (c) {
+		case 'e':
+			evil = true;
+			break;
 		case 'd':
 			detect_denormals = true;
 			break;
@@ -151,8 +162,10 @@ main (int argc, char* argv[])
 	}
 
 	for (list<Test*>::iterator i = tests.begin(); i != tests.end(); ++i) {
-		log ((*i)->name ());
-		(*i)->run (p, N);
+		if (evil || !(*i)->evil ()) {
+			log ((*i)->name ());
+			(*i)->run (p, N);
+		}
 	}
 	
 	p->deactivate ();

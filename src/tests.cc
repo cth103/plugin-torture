@@ -17,6 +17,7 @@
 
 */
 
+#include <float.h>
 #include "input_buffers.h"
 #include "tests.h"
 #include "log.h"
@@ -31,7 +32,29 @@ Test::check_for_output_denormals (Plugin* p, int buffer_size)
 }
 
 void
-ImpulseAndWait::run (Plugin* p, int N)
+Test::wait (Plugin* p, int N)
+{
+	int const ins = p->audio_inputs ();
+
+	for (int i = 0; i < 256; ++i) {
+		for (int j = 0; j < ins; ++j) {
+			buffer_constant (p->input_buffer (j), N, 0);
+		}
+
+		p->run (N);
+		check_for_output_denormals (p, N);
+	}
+}
+	
+
+void
+Silence::run (Plugin* p, int N)
+{
+	wait (p, N);
+}
+
+void
+Impulse::run (Plugin* p, int N)
 {
 	int const ins = p->audio_inputs ();
 
@@ -42,12 +65,65 @@ ImpulseAndWait::run (Plugin* p, int N)
 	p->run (N);
 	check_for_output_denormals (p, N);
 
-	for (int i = 0; i < 256; ++i) {
-		for (int j = 0; j < ins; ++j) {
-			buffer_silent (p->input_buffer (j), N);
-		}
+	wait (p, N);
+}
 
-		p->run (N);
-		check_for_output_denormals (p, N);
+void
+Pulse::run (Plugin* p, int N)
+{
+	int const ins = p->audio_inputs ();
+
+	for (int i = 0; i < ins; ++i) {
+		buffer_step_down (p->input_buffer (i), N);
 	}
+
+	p->run (N);
+	check_for_output_denormals (p, N);
+
+	wait (p, N);
+}
+
+void
+ArdourDCBias::run (Plugin* p, int N)
+{
+	int const ins = p->audio_inputs ();
+
+	for (int i = 0; i < ins; ++i) {
+		buffer_constant (p->input_buffer (i), N, 1e-27);
+	}
+
+	p->run (N);
+	check_for_output_denormals (p, N);
+
+	wait (p, N);
+}
+
+void
+FltMin::run (Plugin* p, int N)
+{
+	int const ins = p->audio_inputs ();
+
+	for (int i = 0; i < ins; ++i) {
+		buffer_constant (p->input_buffer (i), N, FLT_MIN);
+	}
+
+	p->run (N);
+	check_for_output_denormals (p, N);
+
+	wait (p, N);
+}
+
+void
+Denormals::run (Plugin* p, int N)
+{
+	int const ins = p->audio_inputs ();
+
+	for (int i = 0; i < ins; ++i) {
+		buffer_constant (p->input_buffer (i), N, 1e-38);
+	}
+
+	p->run (N);
+	check_for_output_denormals (p, N);
+
+	wait (p, N);
 }
