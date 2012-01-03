@@ -3,12 +3,23 @@
 This is a tool to test LADSPA and LV2 plugins.
 
 It loads a given plugin and subjects it to some test runs.
+Each one is a 1024 sample buffer containing something, then
+256 1024-sample buffers of silence to let the plugin recover
+(and/or generate denormals!)
+
 These are:
 
--- impulse: a 1024-sample buffer with its initial sample as 1 and the
-   rest at 0, followed by 256 1024-sample buffers of 0.
+-- silence: all 0 samples.
+-- impulse: initial sample of 1, followed by 0s.
+-- pulse: 512 1 samples, followed by 512 0 samples.
+-- ardour-dc-bias: buffer full of the value that Ardour uses
+   if its "DC bias" denormal protection is turned on.
+-- flt-min: buffer full of FLT_MIN
+-- denormals: buffer full of 1e-38f
 
-OK, so hardly torture at the moment.
+The flt-min and denormals tests are only run if --evil is passed
+as a parameter, since they cause lots of plugins to generate
+denormals (not entirely surprisingly).
 
 ---- Denormals
 
@@ -20,20 +31,21 @@ with SSE support (pass -msse and -mfpmath=sse to GCC).
 
 ---- Command-line options
 
--d: set the CPU to raise SIGFPE on encountering a denormal.  This will
-    be caught and reported.
+-e|--evil: run particularly evil tests in addition to nicer ones.
 
--a: abort on SIGFPE; useful if you are gdb-ing a plugin and you want
-    to see where a denormal is being introduced.
+-d|--denormals: set the CPU to raise SIGFPE on encountering a denormal.  This will
+                be caught and reported.
+
+-a|--abort: abort on SIGFPE; useful if you are gdb-ing a plugin and you want
+            to see where a denormal is being introduced.
 
 -s|--ladspa: the plugin is a LADSPA
 
 -l|--lv2: the plugin is a LV2
 
--p <plugin>: specify the plugin.  This should be a .so file for LADSPA
-             or a .ttl file for LV2.  For LV2s the plugin must be on
-             the LV2 search path.
-
+-p|--plugin <plugin>: specify the plugin.  This should be a .so file for LADSPA
+            	      or a .ttl file for LV2.  For LV2s the plugin must be on
+                      the LV2 search path.
 
 
 ---- Contact
