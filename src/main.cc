@@ -137,6 +137,12 @@ main (int argc, char* argv[])
 
 
 	Plugin* p = 0;
+
+	{
+		stringstream s;
+		s << "Running " << plugin;
+		log (s.str ());
+	}
 	
 	switch (type) {
 	case LADSPA:
