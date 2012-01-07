@@ -59,6 +59,5 @@ buffer_sine (float* b, int N, int f)
 {
 	for (int i = 0; i < N; ++i) {
 		b[i] = sin (2 * M_PI * f * i / sampling_rate);
-		std::cout << b[i] << "\n";
 	}
 }
