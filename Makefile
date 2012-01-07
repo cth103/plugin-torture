@@ -3,7 +3,7 @@ OBJS :=	src/ladspa_plugin.o src/main.o src/plugin.o src/log.o src/input_buffers.
 CXXFLAGS = -g -msse -mfpmath=sse `pkg-config --cflags lilv-0`
 
 plugin-torture:	$(OBJS)
-		g++ $(CXXFLAGS) -o $@ $(OBJS) -ldl `pkg-config --libs lilv-0`
+		g++ $(CXXFLAGS) -o $@ $(OBJS) -ldl -lrt `pkg-config --libs lilv-0`
 
 %.o:	%.cc
 	gcc $(CXXFLAGS) -g -Wall -c -o $@ $<
