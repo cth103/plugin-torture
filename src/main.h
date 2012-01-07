@@ -17,7 +17,4 @@
 
 */
 
-void buffer_impulse (float *, int);
-void buffer_step_down (float *, int);
-void buffer_constant (float *, int, float);
-void buffer_sine (float *, int, int);
+extern int sampling_rate;

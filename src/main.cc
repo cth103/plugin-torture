@@ -35,6 +35,7 @@
 using namespace std;
 
 static bool abort_on_sigfpe = false;
+int sampling_rate;
 
 void
 fp_exception_handler (int)
@@ -52,12 +53,14 @@ int
 main (int argc, char* argv[])
 {
 	signal (SIGFPE, fp_exception_handler);
+	sampling_rate = 44100;
 
 	/* Make a list of tests */
 	list<Test*> tests;
 	tests.push_back (new Silence);
 	tests.push_back (new Impulse);
 	tests.push_back (new Pulse);
+	tests.push_back (new Sine);
 	tests.push_back (new ArdourDCBias);
 	tests.push_back (new FltMin);
 	tests.push_back (new Denormals);
@@ -163,7 +166,7 @@ main (int argc, char* argv[])
 	
 	int N = 1024;
 
-	p->instantiate (44100);
+	p->instantiate (sampling_rate);
 	p->activate ();
 	p->prepare (N);
 

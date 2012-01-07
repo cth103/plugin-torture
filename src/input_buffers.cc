@@ -17,7 +17,10 @@
 
 */
 
+#include <cmath>
+#include <iostream>
 #include "input_buffers.h"
+#include "main.h"
 
 void
 buffer_impulse (float* b, int N)
@@ -48,5 +51,14 @@ buffer_step_down (float* b, int N)
 
 	for (int i = M; i < N; ++i) {
 		b[i] = 0;
+	}
+}
+
+void
+buffer_sine (float* b, int N, int f)
+{
+	for (int i = 0; i < N; ++i) {
+		b[i] = sin (2 * M_PI * f * i / sampling_rate);
+		std::cout << b[i] << "\n";
 	}
 }

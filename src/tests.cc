@@ -127,3 +127,18 @@ Denormals::run (Plugin* p, int N)
 
 	wait (p, N);
 }
+
+void
+Sine::run (Plugin* p, int N)
+{
+	int const ins = p->audio_inputs ();
+
+	for (int i = 0; i < ins; ++i) {
+		buffer_sine (p->input_buffer (i), N, 440);
+	}
+
+	p->run (N);
+	check_for_output_denormals (p, N);
+
+	wait (p, N);
+}

@@ -105,3 +105,12 @@ public:
 	}
 };
 	
+class Sine : public Test
+{
+public:
+	std::string name () const {
+		return "sine";
+	}
+
+	void run (Plugin *, int);
+};
