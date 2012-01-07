@@ -67,6 +67,7 @@ main (int argc, char* argv[])
 	string plugin;
 	bool evil = false;
 	bool detect_denormals = false;
+	int ladspa_index = 0;
 
 	enum Type {
 		LADSPA,
@@ -76,11 +77,12 @@ main (int argc, char* argv[])
 	Type type = LADSPA;
 	
 	if (argc == 1) {
-		cerr << argv[0] << ": usage: " << argv[0] << " [-e] [-d] [-a] [-s|--ladspa] [-l,--lv2] -p <plugin.{so,ttl}>\n"
+		cerr << argv[0] << ": usage: " << argv[0] << " [-e] [-d] [-a] [-s|--ladspa] [-i,--index <n>] [-l,--lv2] -p <plugin.{so,ttl}>\n"
 		     << "\t-e run particularly evil tests\n"
 		     << "\t-d set CPU to raise SIGFPE on encountering a denormal, and catch it\n"
 		     << "\t-a abort on SIGFPE; otherwise return with exit code 2\n"
 		     << "\t-s|--ladspa plugin is LADSPA (specify the .so)\n"
+		     << "\t-i|--index index of plugin in LADSPA .so (defaults to 0)\n"
 		     << "\t-l|--lv2 plugin is LV2 (specify the .ttl, must be on LV2_PATH)\n"
 		     << "\t-p <plugin.{so,ttl}> plugin to torture\n";
 		exit (EXIT_FAILURE);
@@ -93,6 +95,7 @@ main (int argc, char* argv[])
 			{ "denormals", no_argument, 0, 'd' },
 			{ "abort", no_argument, 0, 'a' },
 			{ "ladspa", no_argument, 0, 's' },
+			{ "index", required_argument, 0, 'i'},
 			{ "lv2", no_argument, 0, 'l' },
 			{ "plugin", required_argument, 0, 'p'},
 			{ 0, 0, 0, 0 }
@@ -117,6 +120,9 @@ main (int argc, char* argv[])
 		case 's':
 			type = LADSPA;
 			break;
+		case 'i':
+			ladspa_index = atoi (optarg);
+			break;
 		case 'l':
 			type = LV2;
 			break;
@@ -135,24 +141,26 @@ main (int argc, char* argv[])
 		_mm_setcsr (mxcsr);
 	}
 
-
 	Plugin* p = 0;
 
-	{
-		stringstream s;
-		s << "Running " << plugin;
-		log (s.str ());
-	}
-	
 	switch (type) {
 	case LADSPA:
-		p = new LadspaPlugin (plugin, 0);
+		p = new LadspaPlugin (plugin, ladspa_index);
 		break;
 	case LV2:
 		p = new LV2Plugin (plugin);
 		break;
 	}
 
+	{
+		stringstream s;
+		s << "Running `" << p->name() << "' (" << plugin << ")";
+		if (type == LADSPA) {
+			s << " index " << ladspa_index;
+		}
+		log (s.str ());
+	}
+	
 	int N = 1024;
 
 	p->instantiate (44100);

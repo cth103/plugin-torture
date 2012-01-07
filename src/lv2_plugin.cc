@@ -228,3 +228,8 @@ LV2Plugin::get_control_input (int n) const
 	return _controls[_control_inputs[n]];
 }
 
+string
+LV2Plugin::name () const
+{
+	return lilv_node_as_string (lilv_plugin_get_name (_plugin));
+}

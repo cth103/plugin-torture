@@ -41,6 +41,7 @@ public:
 	std::string control_input_name (int) const;
 	void set_control_input (int, float);
 	float get_control_input (int) const;
+	std::string name () const;
 	
 private:
 	LilvInstance* _instance;

@@ -226,3 +226,8 @@ LadspaPlugin::get_control_input (int n) const
 	return _controls[_control_inputs[n]];
 }
 
+string
+LadspaPlugin::name () const
+{
+	return _descriptor->Name;
+}

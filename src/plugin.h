@@ -42,6 +42,7 @@ public:
 	virtual std::string control_input_name (int) const = 0;
 	virtual void set_control_input (int, float) = 0;
 	virtual float get_control_input (int) const = 0;
+	virtual std::string name () const = 0;
 
 	bool output_has_denormals (int) const;
 
