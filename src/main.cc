@@ -25,6 +25,7 @@
 #include <getopt.h>
 #include <sstream>
 #include <list>
+#include <stdexcept>
 #include <signal.h>
 #include "ladspa_plugin.h"
 #include "lv2_plugin.h"
@@ -105,7 +106,7 @@ main (int argc, char* argv[])
 		};
 
 		int i;
-		int c = getopt_long (argc, argv, "dslp:", long_options, &i);
+		int c = getopt_long (argc, argv, "edasilp:", long_options, &i);
 		if (c == -1) {
 			break;
 		}
@@ -146,14 +147,23 @@ main (int argc, char* argv[])
 
 	Plugin* p = 0;
 
-	switch (type) {
-	case LADSPA:
-		p = new LadspaPlugin (plugin, ladspa_index);
-		break;
-	case LV2:
-		p = new LV2Plugin (plugin);
-		break;
+	try {
+		switch (type) {
+		case LADSPA:
+			p = new LadspaPlugin (plugin, ladspa_index);
+			break;
+		case LV2:
+			p = new LV2Plugin (plugin);
+			break;
+		}
+
+	} catch (runtime_error& e) {
+
+		cerr << argv[0] << ": " << e.what() << "\n";
+		exit (EXIT_FAILURE);
+
 	}
+		
 
 	{
 		stringstream s;
