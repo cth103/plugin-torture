@@ -32,6 +32,7 @@
 #include "log.h"
 #include "input_buffers.h"
 #include "tests.h"
+#include "input_profile.h"
 
 using namespace std;
 
@@ -48,6 +49,17 @@ fp_exception_handler (int)
 
 	/* return code 2: SIGFPE was raised (probably due to a denormal) */
 	exit (2);
+}
+
+void
+run_tests (list<Test*> const & tests, bool evil, Plugin* p, int N)
+{
+	for (list<Test*>::const_iterator i = tests.begin(); i != tests.end(); ++i) {
+		if (evil || !(*i)->evil ()) {
+			log ((*i)->name ());
+			(*i)->run (p, N);
+		}
+	}
 }
 
 int
@@ -67,8 +79,9 @@ main (int argc, char* argv[])
 	tests.push_back (new Denormals);
 
 	/* Parse the command line */
-	
-	string plugin;
+
+	string profile_file;
+	string plugin_file;
 	bool evil = false;
 	bool detect_denormals = false;
 	int ladspa_index = 0;
@@ -81,14 +94,15 @@ main (int argc, char* argv[])
 	Type type = LADSPA;
 	
 	if (argc == 1) {
-		cerr << argv[0] << ": usage: " << argv[0] << " [-e] [-d] [-a] [-s|--ladspa] [-i,--index <n>] [-l,--lv2] -p <plugin.{so,ttl}>\n"
+		cerr << argv[0] << ": usage: " << argv[0] << " [-e] [-d] [-a] [-s|--ladspa] [-i,--index <n>] [-l,--lv2] [-g|--profile <input-profile] -p|--plugin <plugin.{so,ttl}>\n"
 		     << "\t-e run particularly evil tests\n"
 		     << "\t-d set CPU to raise SIGFPE on encountering a denormal, and catch it\n"
 		     << "\t-a abort on SIGFPE; otherwise return with exit code 2\n"
 		     << "\t-s|--ladspa plugin is LADSPA (specify the .so)\n"
 		     << "\t-i|--index index of plugin in LADSPA .so (defaults to 0)\n"
 		     << "\t-l|--lv2 plugin is LV2 (specify the .ttl, must be on LV2_PATH)\n"
-		     << "\t-p <plugin.{so,ttl}> plugin to torture\n";
+		     << "\t-g|--profile <input-profile> input settings to use\n"
+		     << "\t-p|--plugin <plugin.{so,ttl}> plugin to torture\n";
 		exit (EXIT_FAILURE);
 	}
 
@@ -101,12 +115,13 @@ main (int argc, char* argv[])
 			{ "ladspa", no_argument, 0, 's' },
 			{ "index", required_argument, 0, 'i'},
 			{ "lv2", no_argument, 0, 'l' },
+			{ "profile", required_argument, 0, 'g'},
 			{ "plugin", required_argument, 0, 'p'},
 			{ 0, 0, 0, 0 }
 		};
 
 		int i;
-		int c = getopt_long (argc, argv, "edasilp:", long_options, &i);
+		int c = getopt_long (argc, argv, "edasilgp:", long_options, &i);
 		if (c == -1) {
 			break;
 		}
@@ -130,8 +145,11 @@ main (int argc, char* argv[])
 		case 'l':
 			type = LV2;
 			break;
+		case 'g':
+			profile_file = optarg;
+			break;
 		case 'p':
-			plugin = optarg;
+			plugin_file = optarg;
 			break;
 		}
 	}
@@ -145,15 +163,15 @@ main (int argc, char* argv[])
 		_mm_setcsr (mxcsr);
 	}
 
-	Plugin* p = 0;
+	Plugin* plugin = 0;
 
 	try {
 		switch (type) {
 		case LADSPA:
-			p = new LadspaPlugin (plugin, ladspa_index);
+			plugin = new LadspaPlugin (plugin_file, ladspa_index);
 			break;
 		case LV2:
-			p = new LV2Plugin (plugin);
+			plugin = new LV2Plugin (plugin_file);
 			break;
 		}
 
@@ -163,11 +181,16 @@ main (int argc, char* argv[])
 		exit (EXIT_FAILURE);
 
 	}
-		
 
+	InputProfile* profile = 0;
+	
+	if (!profile_file.empty ()) {
+		profile = new InputProfile (profile_file);
+	}
+	
 	{
 		stringstream s;
-		s << "Running `" << p->name() << "' (" << plugin << ")";
+		s << "Running `" << plugin->name() << "' (" << plugin_file << ")";
 		if (type == LADSPA) {
 			s << " index " << ladspa_index;
 		}
@@ -176,27 +199,40 @@ main (int argc, char* argv[])
 	
 	int N = 1024;
 
-	p->instantiate (sampling_rate);
-	p->activate ();
-	p->prepare (N);
+	plugin->instantiate (sampling_rate);
+	plugin->activate ();
+	plugin->prepare (N);
 
-	int const control_inputs = p->control_inputs ();
+	int const control_inputs = plugin->control_inputs ();
 	log ("Inputs:");
 	for (int i = 0; i < control_inputs; ++i) {
 		stringstream s;
-		s << "\t" << i << " " << p->control_input_name (i) << " [default " << p->get_control_input (i) << "]";
+		s << "\t" << i << " " << plugin->control_input_name (i) << " => default " << plugin->get_control_input (i);
 		log (s.str ());
 	}
 
-	for (list<Test*>::iterator i = tests.begin(); i != tests.end(); ++i) {
-		if (evil || !(*i)->evil ()) {
-			log ((*i)->name ());
-			(*i)->run (p, N);
+	if (profile) {
+		
+		profile->begin_iteration ();
+
+		while (1) {
+			profile->setup (plugin);
+			run_tests (tests, evil, plugin, N);
+			if (!profile->step()) {
+				break;
+			}
 		}
+		
+	} else {
+		
+		run_tests (tests, evil, plugin, N);
+		
 	}
+		
 	
-	p->deactivate ();
-	delete p;
+	plugin->deactivate ();
+	delete plugin;
 
 	return 0;
 }
+
