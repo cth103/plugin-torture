@@ -121,7 +121,7 @@ main (int argc, char* argv[])
 		};
 
 		int i;
-		int c = getopt_long (argc, argv, "edasilgp:", long_options, &i);
+		int c = getopt_long (argc, argv, "edasilg:p:", long_options, &i);
 		if (c == -1) {
 			break;
 		}
@@ -164,6 +164,7 @@ main (int argc, char* argv[])
 	}
 
 	Plugin* plugin = 0;
+	InputProfile* profile = 0;
 
 	try {
 		switch (type) {
@@ -175,6 +176,11 @@ main (int argc, char* argv[])
 			break;
 		}
 
+	
+		if (!profile_file.empty ()) {
+			profile = new InputProfile (profile_file);
+		}
+		
 	} catch (runtime_error& e) {
 
 		cerr << argv[0] << ": " << e.what() << "\n";
@@ -182,12 +188,6 @@ main (int argc, char* argv[])
 
 	}
 
-	InputProfile* profile = 0;
-	
-	if (!profile_file.empty ()) {
-		profile = new InputProfile (profile_file);
-	}
-	
 	{
 		stringstream s;
 		s << "Running `" << plugin->name() << "' (" << plugin_file << ")";
