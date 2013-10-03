@@ -25,7 +25,7 @@ denormals (not entirely surprisingly).
 
 One notable feature of plugin-torture is that it can ask the processor
 to raise an exception when a denormal is detected, and hence allow
-debugging of such issues.  For this to work, the plugin must be compiled
+debugging of such problems.  For this to work, the plugin must be compiled
 with SSE support (pass -msse and -mfpmath=sse to GCC).
 
 
@@ -40,6 +40,8 @@ with SSE support (pass -msse and -mfpmath=sse to GCC).
             to see where a denormal is being introduced.
 
 -s|--ladspa: the plugin is a LADSPA
+
+-i|--index: index of plugin in LADSPA .so (defaults to 0)
 
 -l|--lv2: the plugin is a LV2
 
