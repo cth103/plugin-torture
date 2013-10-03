@@ -62,6 +62,22 @@ run_tests (list<Test*> const & tests, bool evil, Plugin* p, int N)
 	}
 }
 
+static void
+syntax (char* name)
+{
+	cerr << name << ": usage: " << name << " [-e] [-d] [-a] [-s|--ladspa] [-i,--index <n>] [-l,--lv2] [-g|--profile <input-profile] -p|--plugin <plugin.{so,ttl}>\n"
+	     << "\t-e run particularly evil tests\n"
+	     << "\t-d set CPU to raise SIGFPE on encountering a denormal, and catch it\n"
+	     << "\t-a abort on SIGFPE; otherwise return with exit code 2\n"
+	     << "\t-s|--ladspa plugin is LADSPA (specify the .so)\n"
+	     << "\t-i|--index index of plugin in LADSPA .so (defaults to 0)\n"
+	     << "\t-l|--lv2 plugin is LV2 (specify the .ttl, must be on LV2_PATH)\n"
+	     << "\t-g|--profile <input-profile> input settings to use\n"
+	     << "\t-p|--plugin <plugin.{so,ttl}> plugin to torture\n";
+	exit (EXIT_FAILURE);
+}
+	
+
 int
 main (int argc, char* argv[])
 {
@@ -94,21 +110,13 @@ main (int argc, char* argv[])
 	Type type = LADSPA;
 	
 	if (argc == 1) {
-		cerr << argv[0] << ": usage: " << argv[0] << " [-e] [-d] [-a] [-s|--ladspa] [-i,--index <n>] [-l,--lv2] [-g|--profile <input-profile] -p|--plugin <plugin.{so,ttl}>\n"
-		     << "\t-e run particularly evil tests\n"
-		     << "\t-d set CPU to raise SIGFPE on encountering a denormal, and catch it\n"
-		     << "\t-a abort on SIGFPE; otherwise return with exit code 2\n"
-		     << "\t-s|--ladspa plugin is LADSPA (specify the .so)\n"
-		     << "\t-i|--index index of plugin in LADSPA .so (defaults to 0)\n"
-		     << "\t-l|--lv2 plugin is LV2 (specify the .ttl, must be on LV2_PATH)\n"
-		     << "\t-g|--profile <input-profile> input settings to use\n"
-		     << "\t-p|--plugin <plugin.{so,ttl}> plugin to torture\n";
-		exit (EXIT_FAILURE);
+		syntax (argv[0]);
 	}
 
 	while (1) {
 		
 		static struct option long_options[] = {
+			{ "help", no_argument, 0, 'h' },
 			{ "evil", no_argument, 0, 'e' },
 			{ "denormals", no_argument, 0, 'd' },
 			{ "abort", no_argument, 0, 'a' },
@@ -121,12 +129,15 @@ main (int argc, char* argv[])
 		};
 
 		int i;
-		int c = getopt_long (argc, argv, "edasilg:p:", long_options, &i);
+		int c = getopt_long (argc, argv, "hedasilg:p:", long_options, &i);
 		if (c == -1) {
 			break;
 		}
 
 		switch (c) {
+		case 'h':
+			syntax (argv[0]);
+			break;
 		case 'e':
 			evil = true;
 			break;
