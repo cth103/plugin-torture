@@ -129,7 +129,7 @@ main (int argc, char* argv[])
 		};
 
 		int i;
-		int c = getopt_long (argc, argv, "hedasilg:p:", long_options, &i);
+		int c = getopt_long (argc, argv, "hedasi:lg:p:", long_options, &i);
 		if (c == -1) {
 			break;
 		}
