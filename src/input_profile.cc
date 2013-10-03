@@ -1,3 +1,22 @@
+/*
+    Copyright (C) 2012 Carl Hetherington <cth@carlh.net>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+*/
+
 #include <sstream>
 #include <fstream>
 #include <cmath>
@@ -19,6 +38,15 @@ DiscreteInputSpecification::DiscreteInputSpecification (int n, vector<float> con
 	: InputSpecification (n)
 {
 	_values = v;
+
+	{
+		stringstream s;
+		s << "Input specification for input " << n << " is a set of values: ";
+		for (vector<float>::const_iterator i = v.begin(); i != v.end(); ++i) {
+			s << *i << " ";
+		}
+		log (s.str ());
+	}
 }
 
 int
@@ -43,6 +71,12 @@ RangeInputSpecification::RangeInputSpecification (int n, vector<float> const & v
 	_from = v[0];
 	_step = v[1];
 	_to = v[2];
+
+	{
+		stringstream s;
+		s << "Input specification for input " << n << " is a range from " << _from << " to " << _to << ", step " << _step;
+		log (s.str ());
+	}
 }
 
 int
