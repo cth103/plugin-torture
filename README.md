@@ -63,19 +63,21 @@ If you want to torture a plugin using non-default control values, you can specif
 these values in an input profile file.  This is a text file, where each line is either
 
     <input-number> range <from> <step> <to>
+
 or
+
     <input-number> values <value> <value> ...
 
 In each case the input number is the index of the control input to set.  "range" sets
 the input to each of a range of values, and "values" specifies precise values to use.
 For example,
 
-4 range 0 1 42
+    4 range 0 1 42
 
 will set input 4 to each value from 0 to 42 in steps of 1 (0, 1, 2, 3 ..., 42) and
 torture the plugin each time.
 
-9 values 6 7 10 22
+    9 values 6 7 10 22
 
 will torture the plugin with input index 9 set to the values 6, 7, 10 and 22.
 
