@@ -1,0 +1,52 @@
+#!/usr/bin/env zsh
+# todo:
+# check each plugin in a .so: use the -i option to select the index of ladspa plugins
+# make it work propery when some plugins in a set ar OK, and some are not.
+# make an option to reset the plugin paths
+# include the results of lv2bm: if a plugin has a wide range of cpu-usage: remove it.
+# make a version that tests jack programs
+#
+DATE=`date +%d-%m-%Y---%H-%M-%S`
+DIR=~/plugin-torture/$DATE
+
+rm -rf ~/plugin-torture/safeLadspa/ &&
+rm -rf ~/plugin-torture/safeLV2/ &&
+mkdir -p ~/plugin-torture/safeLadspa &&
+mkdir -p ~/plugin-torture/safeLV2 &&
+mkdir -p $DIR &&
+
+if [ $LADSPA_PATH != ~/plugin-torture/safeLadspa ]; then
+  export OLD_LADSPA_PATH=$LADSPA_PATH
+fi
+
+if [ $LV2_PATH != ~/plugin-torture/safeLV2 ]; then
+  export OLD_LV2_PATH=$LV2_PATH
+fi
+
+for plugins  (${(s.:.)OLD_LADSPA_PATH}/*;) {
+  analyseplugin $plugins | grep 'Hard Real-Time'
+  if [ $? -eq 0 ]; then
+    plugin-torture --evil -d -a --ladspa --plugin $plugins | tee >(>> $DIR/ladspa-evil.txt) | grep 'WARNING'
+    if [ $? -eq 1 ]; then
+     ln -s $plugins ~/plugin-torture/safeLadspa
+    fi
+  fi
+}
+
+for plugins  (${(s.:.)OLD_LV2_PATH}/*;) {
+  if [ -f $plugins/manifest.ttl ]; then
+    cat $plugins/*.ttl | grep 'hardRTCapable'
+    if [ $? -eq 0 ]; then
+      plugin-torture --evil -d -a --lv2 --plugin $plugins/manifest.ttl | tee >(>> $DIR/lv2-evil.txt) | grep 'WARNING'
+      if [ $? -eq 1 ]; then
+         ln -s $plugins ~/plugin-torture/safeLV2
+      fi
+    fi
+  fi
+  }
+
+export LADSPA_PATH=~/plugin-torture/safeLadspa
+export LV2_PATH=~/plugin-torture/safeLV2
+
+#open
+urxvtc -e $EDITOR $DIR/* &
