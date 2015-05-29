@@ -49,6 +49,12 @@ LadspaPlugin::LadspaPlugin (string const & filename, int index)
 	}
 
 	_descriptor = fn (index);
+	if (!_descriptor) {
+		stringstream s;
+		s << "Out of range LADSPA index " << index;
+		throw runtime_error (s.str ());
+	}
+	
 	_num_ports = _descriptor->PortCount;
 
 	for (int i = 0; i < _num_ports; ++i) {
