@@ -186,7 +186,6 @@ main (int argc, char* argv[])
 			plugin = new LV2Plugin (plugin_file);
 			break;
 		}
-
 	
 		if (!profile_file.empty ()) {
 			profile = new InputProfile (profile_file);
