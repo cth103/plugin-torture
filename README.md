@@ -1,4 +1,5 @@
----- plugin-torture
+plugin-torture
+==============
 
 This is a tool to test LADSPA and LV2 plugins.
 
@@ -9,19 +10,20 @@ Each one is a 1024 sample buffer containing something, then
 
 These are:
 
--- silence: all 0 samples.
--- impulse: initial sample of 1, followed by 0s.
--- pulse: 512 1 samples, followed by 512 0 samples.
--- ardour-dc-bias: buffer full of the value that Ardour uses
+- silence: all 0 samples.
+- impulse: initial sample of 1, followed by 0s.
+- pulse: 512 1 samples, followed by 512 0 samples.
+- ardour-dc-bias: buffer full of the value that Ardour uses
    if its "DC bias" denormal protection is turned on.
--- flt-min: buffer full of FLT_MIN
--- denormals: buffer full of 1e-38f
+- flt-min: buffer full of FLT_MIN
+- denormals: buffer full of 1e-38f
 
 The flt-min and denormals tests are only run if --evil is passed
 as a parameter, since they cause lots of plugins to generate
 denormals (not entirely surprisingly).
 
----- Denormals
+Denormals
+=========
 
 One notable feature of plugin-torture is that it can ask the processor
 to raise an exception when a denormal is detected, and hence allow
@@ -29,7 +31,8 @@ debugging of such problems.  For this to work, the plugin must be compiled
 with SSE support (pass -msse and -mfpmath=sse to GCC).
 
 
----- Command-line options
+Command-line options
+====================
 
 -e|--evil: run particularly evil tests in addition to nicer ones.
 
@@ -76,18 +79,21 @@ torture the plugin each time.
 will torture the plugin with input index 9 set to the values 6, 7, 10 and 22.
 
 
----- Contact
+Contact
+=======
 
 Contact cth@carlh.net.
 
 
----- Bugs
+Bugs
+====
 
 Yes.  The Makefile has no dependency information, so be careful if you
 modify a header and rebuild (doing a make clean is probably a good idea).
 
 
----- Acknowledgements
+Acknowledgements
+================
 
 Some of this code was inspired by / copied from Ardour and
 `demolition', a LADSPA torture tester
