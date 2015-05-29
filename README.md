@@ -55,15 +55,16 @@ Command-line options
 -g|--profile <profile>: file to specify the plugin control inputs to use; see below
 
 
----- Input profiles
+Input profiles
+==============
 
 By default, plugin-torture will set the plugin's controls to their default values.
 If you want to torture a plugin using non-default control values, you can specify
 these values in an input profile file.  This is a text file, where each line is either
 
-<input-number> range <from> <step> <to>
+    <input-number> range <from> <step> <to>
 or
-<input-number> values <value> <value> ...
+    <input-number> values <value> <value> ...
 
 In each case the input number is the index of the control input to set.  "range" sets
 the input to each of a range of values, and "values" specifies precise values to use.
