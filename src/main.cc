@@ -113,7 +113,7 @@ main (int argc, char* argv[])
 		syntax (argv[0]);
 	}
 
-	while (1) {
+	while (true) {
 
 		static struct option long_options[] = {
 			{ "help", no_argument, 0, 'h' },
@@ -225,7 +225,7 @@ main (int argc, char* argv[])
 
 		profile->begin_iteration ();
 
-		while (1) {
+		while (true) {
 			profile->setup (plugin);
 			run_tests (tests, evil, plugin, N);
 			if (!profile->step()) {
@@ -245,4 +245,3 @@ main (int argc, char* argv[])
 
 	return 0;
 }
-

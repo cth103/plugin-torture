@@ -166,7 +166,7 @@ bool
 InputProfile::step ()
 {
 	int i = 0;
-	while (1) {
+	while (true) {
 		_iteration[i]++;
 		if (_iteration[i] != _specs[i]->values()) {
 			break;
