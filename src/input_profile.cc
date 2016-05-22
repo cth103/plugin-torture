@@ -22,7 +22,6 @@
 #include <cmath>
 #include <iostream>
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include "log.h"
 #include "plugin.h"
 #include "input_profile.h"
@@ -43,7 +42,7 @@ DiscreteInputSpecification::DiscreteInputSpecification (int n, vector<float> con
 	{
 		stringstream s;
 		s << "Input specification for input " << n << " is a set of values: ";
-		BOOST_FOREACH (float i, v) {
+		for (auto i: v) {
 			s << i << " ";
 		}
 		log (s.str ());

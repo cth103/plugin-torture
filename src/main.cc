@@ -28,7 +28,6 @@
 #include <stdexcept>
 #include <signal.h>
 #include <boost/optional.hpp>
-#include <boost/foreach.hpp>
 #include "ladspa_plugin.h"
 #include "lv2_plugin.h"
 #include "log.h"
@@ -57,7 +56,7 @@ fp_exception_handler (int)
 void
 run_tests (list<Test*> const & tests, bool evil, Plugin* p, int N)
 {
-	BOOST_FOREACH (Test* i, tests) {
+	for (auto i: tests) {
 		if (evil || !i->evil ()) {
 			log (i->name ());
 			i->run (p, N);
@@ -216,7 +215,7 @@ main (int argc, char* argv[])
 
 	}
 
-	BOOST_FOREACH (Plugin* i, plugins) {
+	for (auto i: plugins) {
 		stringstream s;
 		s << "Running `" << i->name() << "' (" << plugin_file << ")";
 		log (s.str ());
