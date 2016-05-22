@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012 Carl Hetherington <cth@carlh.net>
+    Copyright (C) 2012-2016 Carl Hetherington <cth@carlh.net>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <cmath>
 #include <iostream>
 #include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
 #include "log.h"
 #include "plugin.h"
 #include "input_profile.h"
@@ -42,8 +43,8 @@ DiscreteInputSpecification::DiscreteInputSpecification (int n, vector<float> con
 	{
 		stringstream s;
 		s << "Input specification for input " << n << " is a set of values: ";
-		for (vector<float>::const_iterator i = v.begin(); i != v.end(); ++i) {
-			s << *i << " ";
+		BOOST_FOREACH (float i, v) {
+			s << i << " ";
 		}
 		log (s.str ());
 	}
