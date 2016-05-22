@@ -26,7 +26,7 @@ void
 buffer_impulse (float* b, int N)
 {
 	b[0] = 1;
-	
+
 	for (int i = 1; i < N; ++i) {
 		b[i] = 0;
 	}

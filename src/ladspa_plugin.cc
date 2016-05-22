@@ -40,7 +40,7 @@ LadspaPlugin::LadspaPlugin (string const & filename, int index)
 		s << "Could not dlopen() " << filename;
 		throw runtime_error (s.str ());
 	}
-	
+
 	LADSPA_Descriptor_Function fn = (LADSPA_Descriptor_Function) dlsym (_library, "ladspa_descriptor");
 	if (fn == 0) {
 		stringstream s;
@@ -54,7 +54,7 @@ LadspaPlugin::LadspaPlugin (string const & filename, int index)
 		s << "Out of range LADSPA index " << index;
 		throw runtime_error (s.str ());
 	}
-	
+
 	_num_ports = _descriptor->PortCount;
 
 	for (int i = 0; i < _num_ports; ++i) {
@@ -83,7 +83,7 @@ void
 LadspaPlugin::instantiate (int Fs)
 {
 	Plugin::instantiate (Fs);
-	
+
 	_handle = _descriptor->instantiate (_descriptor, Fs);
 	if (_handle == 0) {
 		throw runtime_error ("Instantiation failed.");
@@ -114,7 +114,7 @@ LadspaPlugin::unprepare ()
 	for (int i = 0; i < _num_ports; ++i) {
 		free (_buffers[i]);
 	}
-	
+
 	free (_buffers);
 }
 
@@ -127,7 +127,7 @@ LadspaPlugin::prepare (int buffer_size)
 
 	for (int port = 0; port < _num_ports; ++port) {
 		LADSPA_Data min, max, start;
-    
+
 		if (LADSPA_IS_HINT_SAMPLE_RATE (hints[port].HintDescriptor)) {
 			min = hints[port].LowerBound * (float) _sampling_rate;
 			max = hints[port].UpperBound * (float) _sampling_rate;
@@ -135,7 +135,7 @@ LadspaPlugin::prepare (int buffer_size)
 			min = hints[port].LowerBound;
 			max = hints[port].UpperBound;
 		}
-		
+
 		_descriptor->connect_port(_handle, port, &(_controls[port]));
 		if (LADSPA_IS_HINT_DEFAULT_MINIMUM (hints[port].HintDescriptor)) {
 			start = min;
@@ -161,7 +161,7 @@ LadspaPlugin::prepare (int buffer_size)
 		} else {
 			start = 0;
 		}
-		
+
 		_controls[port] = start;
 	}
 

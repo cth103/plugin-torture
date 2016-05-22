@@ -43,7 +43,7 @@ public:
 	std::string name () const {
 		return "silence";
 	}
-	
+
 	void run (Plugin *, int);
 };
 
@@ -53,7 +53,7 @@ public:
 	std::string name () const {
 		return "impulse";
 	}
-	
+
 	void run (Plugin *, int);
 };
 
@@ -63,7 +63,7 @@ public:
 	std::string name () const {
 		return "pulse";
 	}
-	
+
 	void run (Plugin *, int);
 };
 
@@ -104,7 +104,7 @@ public:
 		return true;
 	}
 };
-	
+
 class Sine : public Test
 {
 public:

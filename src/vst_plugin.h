@@ -16,7 +16,7 @@ public:
 
 	float* input_buffer (int) const;
 	int input_buffers () const;
-	
+
 private:
 	void* _dll;
 	char* _name;

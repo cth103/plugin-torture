@@ -69,7 +69,7 @@ int
 VSTPlugin::input_buffers () const
 {
 }
-	
+
 
 float *
 VSTPlugin::input_buffer (int n) const

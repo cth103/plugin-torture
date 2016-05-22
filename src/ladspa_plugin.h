@@ -43,7 +43,7 @@ public:
 	void set_control_input (int, float);
 	float get_control_input (int) const;
 	std::string name () const;
-	
+
 private:
 	void unprepare ();
 

@@ -27,7 +27,7 @@ public:
 	int input () const {
 		return _input;
 	}
-	
+
 	virtual int values () const = 0;
 	virtual float value (int) const = 0;
 
@@ -69,7 +69,7 @@ public:
 	void begin_iteration ();
 	void setup (Plugin* p) const;
 	bool step ();
-	
+
 private:
 	std::vector<InputSpecification*> _specs;
 	std::vector<int> _iteration;

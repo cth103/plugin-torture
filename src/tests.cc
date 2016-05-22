@@ -45,7 +45,7 @@ Test::wait (Plugin* p, int N)
 		check_for_output_denormals (p, N);
 	}
 }
-	
+
 
 void
 Silence::run (Plugin* p, int N)

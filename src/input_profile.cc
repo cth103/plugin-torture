@@ -94,7 +94,7 @@ RangeInputSpecification::value (int i) const
 InputProfile::InputProfile (string const & file)
 {
 	ifstream f (file.c_str ());
-	
+
 	while (f.good ()) {
 		string line;
 		getline (f, line);

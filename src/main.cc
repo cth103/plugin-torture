@@ -76,7 +76,7 @@ syntax (char* name)
 	     << "\t-p|--plugin <plugin.{so,ttl}> plugin to torture\n";
 	exit (EXIT_FAILURE);
 }
-	
+
 
 int
 main (int argc, char* argv[])
@@ -108,13 +108,13 @@ main (int argc, char* argv[])
 	};
 
 	Type type = LADSPA;
-	
+
 	if (argc == 1) {
 		syntax (argv[0]);
 	}
 
 	while (1) {
-		
+
 		static struct option long_options[] = {
 			{ "help", no_argument, 0, 'h' },
 			{ "evil", no_argument, 0, 'e' },
@@ -164,7 +164,7 @@ main (int argc, char* argv[])
 			break;
 		}
 	}
-			
+
 
 	if (detect_denormals) {
 		log ("Turning on denormal detection.");
@@ -186,11 +186,11 @@ main (int argc, char* argv[])
 			plugin = new LV2Plugin (plugin_file);
 			break;
 		}
-	
+
 		if (!profile_file.empty ()) {
 			profile = new InputProfile (profile_file);
 		}
-		
+
 	} catch (runtime_error& e) {
 
 		cerr << argv[0] << ": " << e.what() << "\n";
@@ -206,7 +206,7 @@ main (int argc, char* argv[])
 		}
 		log (s.str ());
 	}
-	
+
 	int N = 1024;
 
 	plugin->instantiate (sampling_rate);
@@ -222,7 +222,7 @@ main (int argc, char* argv[])
 	}
 
 	if (profile) {
-		
+
 		profile->begin_iteration ();
 
 		while (1) {
@@ -232,14 +232,14 @@ main (int argc, char* argv[])
 				break;
 			}
 		}
-		
+
 	} else {
-		
+
 		run_tests (tests, evil, plugin, N);
-		
+
 	}
-		
-	
+
+
 	plugin->deactivate ();
 	delete plugin;
 

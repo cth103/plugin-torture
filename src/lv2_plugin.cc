@@ -56,9 +56,9 @@ public:
 	LilvNode* control_class;
 	LilvNode* srate;
 };
-	
-	
-	       
+
+
+
 static LV2World world;
 
 LV2Plugin::LV2Plugin (string const & filename)
@@ -78,7 +78,7 @@ LV2Plugin::LV2Plugin (string const & filename)
 			while (path.find ("//") != string::npos) {
 				boost::replace_all (path, "//", "/");
 			}
-			
+
 			if (path == filename) {
 				_plugin = p;
 			}
@@ -90,7 +90,7 @@ LV2Plugin::LV2Plugin (string const & filename)
 		s << "Could not find LV2 plugin " << filename;
 		throw runtime_error (s.str ());
 	}
-	
+
 	_num_ports = lilv_plugin_get_num_ports (_plugin);
 
 	for (int i = 0; i < _num_ports; ++i) {
@@ -117,7 +117,7 @@ void
 LV2Plugin::instantiate (int Fs)
 {
 	Plugin::instantiate (Fs);
-	
+
 	_instance = lilv_plugin_instantiate (_plugin, Fs, _features);
 	if (_instance == 0) {
 		throw runtime_error ("Failed to instantiate LV2 plugin");
@@ -146,12 +146,12 @@ LV2Plugin::prepare (int buffer_size)
 	for (int i = 0; i < _num_ports; ++i) {
 
 		LilvPort const * p = lilv_plugin_get_port_by_index (_plugin, i);
-		
+
 		if (lilv_port_is_a (_plugin, p, world.audio_class)) {
-			
+
 			_buffers[i] = (float *) calloc (buffer_size, sizeof (float));
 			lilv_instance_connect_port (_instance, i, _buffers[i]);
-			
+
 		} else if (lilv_port_is_a (_plugin, p, world.control_class)) {
 
 			LilvNode* def;
@@ -211,7 +211,7 @@ LV2Plugin::control_input_name (int n) const
 {
 	assert (n < control_inputs ());
 	return lilv_node_as_string (lilv_port_get_name (_plugin, lilv_plugin_get_port_by_index (_plugin, _control_inputs[n])));
-								
+
 }
 
 void
