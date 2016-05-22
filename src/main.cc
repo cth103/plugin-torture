@@ -27,6 +27,7 @@
 #include <list>
 #include <stdexcept>
 #include <signal.h>
+#include <boost/optional.hpp>
 #include "ladspa_plugin.h"
 #include "lv2_plugin.h"
 #include "log.h"
@@ -35,6 +36,7 @@
 #include "input_profile.h"
 
 using namespace std;
+using boost::optional;
 
 static bool abort_on_sigfpe = false;
 int sampling_rate;
@@ -70,7 +72,7 @@ syntax (char* name)
 	     << "\t-d set CPU to raise SIGFPE on encountering a denormal, and catch it\n"
 	     << "\t-a abort on SIGFPE; otherwise return with exit code 2\n"
 	     << "\t-s|--ladspa plugin is LADSPA (specify the .so)\n"
-	     << "\t-i|--index index of plugin in LADSPA .so (defaults to 0)\n"
+	     << "\t-i|--index index of plugin in LADSPA .so (if not specified, all plugins are tested)\n"
 	     << "\t-l|--lv2 plugin is LV2 (specify the .ttl, must be on LV2_PATH)\n"
 	     << "\t-g|--profile <input-profile> input settings to use\n"
 	     << "\t-p|--plugin <plugin.{so,ttl}> plugin to torture\n";
@@ -100,7 +102,7 @@ main (int argc, char* argv[])
 	string plugin_file;
 	bool evil = false;
 	bool detect_denormals = false;
-	int ladspa_index = 0;
+	optional<int> ladspa_index;
 
 	enum Type {
 		LADSPA,
@@ -165,7 +167,6 @@ main (int argc, char* argv[])
 		}
 	}
 
-
 	if (detect_denormals) {
 		log ("Turning on denormal detection.");
 		int mxcsr = _mm_getcsr ();
@@ -174,16 +175,32 @@ main (int argc, char* argv[])
 		_mm_setcsr (mxcsr);
 	}
 
-	Plugin* plugin = 0;
+	list<Plugin*> plugins;
 	InputProfile* profile = 0;
 
 	try {
 		switch (type) {
 		case LADSPA:
-			plugin = new LadspaPlugin (plugin_file, ladspa_index);
+			if (ladspa_index) {
+				plugins.push_back (new LadspaPlugin (plugin_file, ladspa_index.get()));
+			} else {
+				int i = 0;
+				while (true) {
+					try {
+						plugins.push_back (new LadspaPlugin (plugin_file, i));
+					} catch (runtime_error& e) {
+						/* We assume this means that the plugin index is invalid, i.e.
+						   we've found all the plugins.
+						*/
+						break;
+					}
+
+					++i;
+				}
+			}
 			break;
 		case LV2:
-			plugin = new LV2Plugin (plugin_file);
+			plugins.push_back (new LV2Plugin (plugin_file));
 			break;
 		}
 
@@ -198,50 +215,46 @@ main (int argc, char* argv[])
 
 	}
 
-	{
+	for (list<Plugin*>::const_iterator i = plugins.begin(); i != plugins.end(); ++i) {
 		stringstream s;
-		s << "Running `" << plugin->name() << "' (" << plugin_file << ")";
-		if (type == LADSPA) {
-			s << " index " << ladspa_index;
+		s << "Running `" << (*i)->name() << "' (" << plugin_file << ")";
+		log (s.str ());
+
+		int N = 1024;
+
+		(*i)->instantiate (sampling_rate);
+		(*i)->activate ();
+		(*i)->prepare (N);
+
+		int const control_inputs = (*i)->control_inputs ();
+		log ("Inputs:");
+		for (int j = 0; j < control_inputs; ++j) {
+			stringstream s;
+			s << "\t" << j << " " << (*i)->control_input_name (j) << " => default " << (*i)->get_control_input (j);
+			log (s.str ());
 		}
-		log (s.str ());
-	}
 
-	int N = 1024;
+		if (profile) {
 
-	plugin->instantiate (sampling_rate);
-	plugin->activate ();
-	plugin->prepare (N);
+			profile->begin_iteration ();
 
-	int const control_inputs = plugin->control_inputs ();
-	log ("Inputs:");
-	for (int i = 0; i < control_inputs; ++i) {
-		stringstream s;
-		s << "\t" << i << " " << plugin->control_input_name (i) << " => default " << plugin->get_control_input (i);
-		log (s.str ());
-	}
-
-	if (profile) {
-
-		profile->begin_iteration ();
-
-		while (true) {
-			profile->setup (plugin);
-			run_tests (tests, evil, plugin, N);
-			if (!profile->step()) {
-				break;
+			while (true) {
+				profile->setup (*i);
+				run_tests (tests, evil, *i, N);
+				if (!profile->step()) {
+					break;
+				}
 			}
+
+		} else {
+
+			run_tests (tests, evil, *i, N);
+
 		}
 
-	} else {
-
-		run_tests (tests, evil, plugin, N);
-
+		(*i)->deactivate ();
+		delete *i;
 	}
-
-
-	plugin->deactivate ();
-	delete plugin;
 
 	return 0;
 }
