@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012 Carl Hetherington <cth@carlh.net>
+    Copyright (C) 2012-2016 Carl Hetherington <cth@carlh.net>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,14 +17,15 @@
 
 */
 
+#include "lv2_plugin.h"
+#include "uri_map.h"
+#include <lilv/lilv.h>
+#include <boost/algorithm/string.hpp>
 #include <stdexcept>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <boost/algorithm/string.hpp>
-#include <lilv/lilv.h>
-#include "lv2_plugin.h"
 
 using namespace std;
 
@@ -64,9 +65,13 @@ static LV2World world;
 
 LV2Plugin::LV2Plugin (string const & filename)
 	: _plugin (0)
+	, _uri_map (URIMap::instance ())
 {
-	_features = (LV2_Feature**) malloc (sizeof (LV2_Feature*));
-	_features[0] = 0;
+	_features = (LV2_Feature**) calloc (4, sizeof (LV2_Feature*));
+	_features[0] = _uri_map.uri_map_feature ();
+	_features[1] = _uri_map.urid_map_feature ();
+	_features[2] = _uri_map.urid_unmap_feature ();
+	_features[3] = 0;
 
 	LilvPlugins const * plugins = lilv_world_get_all_plugins (world.world);
 

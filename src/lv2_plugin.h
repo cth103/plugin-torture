@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012 Carl Hetherington <cth@carlh.net>
+    Copyright (C) 2012-2016 Carl Hetherington <cth@carlh.net>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include <vector>
 #include <lilv/lilv.h>
 #include "plugin.h"
+
+class URIMap;
 
 class LV2Plugin : public Plugin
 {
@@ -55,4 +57,6 @@ private:
 	std::vector<int> _audio_inputs;
 	std::vector<int> _audio_outputs;
 	std::vector<int> _control_inputs;
+
+	URIMap & _uri_map;
 };
