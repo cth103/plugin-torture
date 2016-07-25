@@ -28,7 +28,8 @@
 
 using namespace std;
 
-class LV2World {
+class LV2World
+{
 public:
 	LV2World ()
 	{
@@ -38,7 +39,7 @@ public:
 		output_class = lilv_new_uri (world, LILV_URI_OUTPUT_PORT);
 		control_class = lilv_new_uri (world, LILV_URI_CONTROL_PORT);
 		audio_class = lilv_new_uri (world, LILV_URI_AUDIO_PORT);
-		srate = lilv_new_uri(world, LILV_NS_LV2 "sampleRate");
+		srate = lilv_new_uri (world, LILV_NS_LV2 "sampleRate");
 	}
 
 	~LV2World ()
